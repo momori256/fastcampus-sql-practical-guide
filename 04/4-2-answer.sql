@@ -1,8 +1,8 @@
 -- Q1. 価格が 10000 円と近い順に商品を並べ替える
 SELECT product, price, ABS(price - 10000) FROM inventory ORDER BY ABS(price - 10000);
 
--- Q2. 平均価格 (15310 円) との差の絶対値を少数第二位まで計算する
-SELECT product, price, ABS(ROUND(price - 15310, 2)) FROM inventory;
+-- Q2. 売れ筋価格 (15310.573 円) との差の絶対値を少数第二位まで計算する
+SELECT product, price, ABS(ROUND(price - 15310.573, 2)) FROM inventory;
 
 -- Q3. 商品名を最大 5 文字で表示する
 SELECT SUBSTR(product, 1, 5) FROM inventory;

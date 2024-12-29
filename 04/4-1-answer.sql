@@ -6,3 +6,6 @@ SELECT MAX(price), MIN(price) FROM inventory;
 
 -- Q3. 「文房具」カテゴリの商品数を取得する
 SELECT COUNT(*) FROM inventory WHERE category = '文房具';
+
+-- Q4. カテゴリがいくつあるかを取得する
+SELECT COUNT(DISTINCT category) FROM inventory;
