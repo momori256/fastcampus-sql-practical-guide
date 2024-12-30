@@ -6,23 +6,23 @@ SELECT
 FROM
     inventory AS inv
 INNER JOIN
-    order_history AS ord
+    orders AS ord
 ON
     inv.product = ord.product
 WHERE
     inv.product = 'ノート';
 
 -- Q2. カテゴリごとに平均注文数を調べる
-SELECT
+select
     inv.category,
-    ROUND(AVG(ord.quantity), 2) AS '平均注文数'
-FROM
-    inventory AS inv
-INNER JOIN
-    order_history AS ord
-ON
+    round(avg(ord.quantity), 2) as '平均注文数'
+from
+    inventory as inv
+inner join
+    orders as ord
+on
     inv.product = ord.product
-GROUP BY
+group by
     inv.category;
 
 -- Q3. 日付ごとに合計注文金額を調べ、上位 3 日を表示する
@@ -32,7 +32,7 @@ SELECT
 FROM
     inventory AS inv
 INNER JOIN
-    order_history AS ord
+    orders AS ord
 ON
     inv.product = ord.product
 GROUP BY
@@ -47,7 +47,7 @@ SELECT
     order_date,
     SUM(quantity) AS total_quantity
 FROM
-    order_history
+    orders
 GROUP BY
     product, order_date
 HAVING

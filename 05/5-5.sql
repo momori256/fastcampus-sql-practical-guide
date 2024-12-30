@@ -41,7 +41,7 @@ VALUES
     (4, '田中 美佐子');
 
 -- 注文履歴テーブル
-CREATE TABLE order_history (
+CREATE TABLE orders (
     order_id INTEGER PRIMARY KEY, -- 注文 ID
     customer_id INTEGER, -- 顧客 ID
     product TEXT NOT NULL, -- 商品名
@@ -49,7 +49,7 @@ CREATE TABLE order_history (
     order_date TEXT NOT NULL -- 注文日
 );
 
-INSERT INTO order_history (order_id, customer_id, product, quantity, order_date)
+INSERT INTO orders (order_id, customer_id, product, quantity, order_date)
 VALUES
     -- 文房具
     (1, 1, 'ノート', 2, '2024-12-01'), -- 佐藤太郎がノートを 2 冊購入
@@ -78,4 +78,3 @@ VALUES
     (18, 1, 'デスク', 2, '2024-12-02'),
     (19, 1, 'デスク', 1, '2024-12-03'),
     (20, 2, 'デスク', 3, '2024-12-04');
-

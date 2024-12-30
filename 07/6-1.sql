@@ -1,7 +1,11 @@
--- Q1. 「ノート」が合計何冊・何円売れたか調べる
--- Q2. カテゴリごとに平均注文数を調べる
--- Q3. 日付ごとに合計注文金額を調べ、上位 3 日を表示する
--- Q4. 一日に 4 つ以上注文があった商品を調べる
+-- Q1. 価格が最大の商品を取得する。同じ価格の商品が複数ある場合は全て取得する
+-- Q2. (IN を使って) 価格が高い順に商品を 3 個取得する
+-- Q3. 平均注文金額が 5000 円以下のカテゴリに属する商品を取得する
+-- Q4. 平均価格が最大のカテゴリに属する商品を取得する
+-- Q5. 各商品について、カテゴリの平均価格との差を計算する
+-- Q5'. CTE を使ってリファクタリング
+-- Q6. 一度も購入されていない商品を取得する
+-- Q6'. CTE を使ってリファクタリング
 
 -- 商品在庫テーブルの作成
 CREATE TABLE inventory (
@@ -24,10 +28,10 @@ VALUES
     (7, 'ノートパソコン', 30, 80000, '電子機器'),
     (8, 'スマートフォン', 100, 35000, '電子機器'),
     (9, 'ヘッドフォン', 20, 5000, '電子機器'),
-    (10, 'デスク', 25, 20000, '家具');
+    (10, 'デスク', 25, 80000, '家具');
 
 -- 注文履歴テーブルの作成
-CREATE TABLE orders (
+CREATE TABLE order_history (
     order_id INTEGER PRIMARY KEY, -- 注文 ID
     product TEXT NOT NULL, -- 商品名
     quantity INTEGER NOT NULL, -- 注文数
@@ -35,7 +39,7 @@ CREATE TABLE orders (
 );
 
 -- 注文履歴データ挿入
-INSERT INTO orders (order_id, product, quantity, order_date)
+INSERT INTO order_history (order_id, product, quantity, order_date)
 VALUES
     -- 文房具
     (1, 'ノート', 2, '2024-12-01'), -- ノートを 2 冊購入

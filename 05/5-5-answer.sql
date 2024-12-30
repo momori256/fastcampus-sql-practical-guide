@@ -3,7 +3,7 @@ SELECT
     o.*,
     c.name
 FROM
-    order_history AS o
+    orders AS o
 INNER JOIN
     customers AS c
 ON
@@ -16,7 +16,7 @@ SELECT
 FROM
     customers AS c
 INNER JOIN
-    order_history AS o
+    orders AS o
 ON
     c.customer_id = o.customer_id
 INNER JOIN
@@ -33,7 +33,7 @@ SELECT
 FROM
     customers AS c
 LEFT JOIN
-    order_history AS o
+    orders AS o
 ON
     c.customer_id = o.customer_id
 LEFT JOIN
@@ -49,7 +49,7 @@ SELECT
 FROM
     inventory AS i
 LEFT JOIN
-    order_history AS o
+    orders AS o
 ON
     i.product = o.product
 WHERE
@@ -62,7 +62,7 @@ SELECT
 FROM
     customers AS c
 INNER JOIN
-    order_history AS o
+    orders AS o
 ON
     c.customer_id = o.customer_id
 INNER JOIN
@@ -85,7 +85,7 @@ SELECT
 FROM
     inventory AS i
 INNER JOIN
-    order_history AS o
+    orders AS o
 ON
     i.product = o.product
 INNER JOIN
@@ -104,7 +104,7 @@ SELECT
 FROM
     customers AS c
 INNER JOIN
-    order_history AS o
+    orders AS o
 ON
     c.customer_id = o.customer_id
 INNER JOIN
