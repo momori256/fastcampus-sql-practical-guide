@@ -20,6 +20,6 @@ VALUES
     (4, 'Daisy', 'Marketing'),
     (5, 'Eve', 'Sales'),
     (6, 'Frank', 'Finance'),
-    (7, 'Grace', 'HR'),
-    (8, 'Hank', 'IT'),
+    (7, 'Grace', 'IT'),
+    (8, 'Grace', 'HR'),
     (9, 'Ivy', 'Marketing');
