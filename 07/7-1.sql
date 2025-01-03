@@ -31,7 +31,7 @@ VALUES
     (10, 'デスク', 25, 80000, '家具');
 
 -- 注文履歴テーブルの作成
-CREATE TABLE order_history (
+CREATE TABLE orders (
     order_id INTEGER PRIMARY KEY, -- 注文 ID
     product TEXT NOT NULL, -- 商品名
     quantity INTEGER NOT NULL, -- 注文数
@@ -39,7 +39,7 @@ CREATE TABLE order_history (
 );
 
 -- 注文履歴データ挿入
-INSERT INTO order_history (order_id, product, quantity, order_date)
+INSERT INTO orders (order_id, product, quantity, order_date)
 VALUES
     -- 文房具
     (1, 'ノート', 2, '2024-12-01'), -- ノートを 2 冊購入

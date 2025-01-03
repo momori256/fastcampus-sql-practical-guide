@@ -16,7 +16,7 @@ WHERE id IN (
     LIMIT 3
 );
 
--- Q3. 平均注文金額が 10000 円以下のカテゴリに属する商品を取得する
+-- Q3. 平均注文金額が 5000 円以下のカテゴリに属する商品を取得する
 SELECT
     *
 FROM
@@ -27,7 +27,7 @@ WHERE
         SELECT
             i.category
         FROM
-            order_history AS o
+            orders AS o
         INNER JOIN
             inventory AS i ON o.product = i.product
         GROUP BY
@@ -102,7 +102,7 @@ WHERE
         SELECT
             product
         FROM
-            order_history
+            orders
     );
 
 -- Q6'. CTE を使ってリファクタリング
@@ -110,7 +110,7 @@ WITH ordered_products AS (
     SELECT
         product
     FROM
-        order_history
+        orders
 )
 SELECT
     *
