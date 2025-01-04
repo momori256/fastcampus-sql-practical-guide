@@ -1,20 +1,81 @@
--- Q1. 各カテゴリの中で、自分より価格が高い商品が存在する商品を取得する
+-- Q1. カテゴリごとの平均価格よりも高価な商品を取得する
+SELECT *
+FROM inventory AS i1
+WHERE i1.price > (SELECT AVG(price)
+                  FROM inventory AS i2
+                  WHERE i2.category = i1.category);
+
+-- Q2. 在庫数が注文数よりも少ない商品を取得する
 SELECT
     *
 FROM
-    inventory AS i1
+    inventory as i1
 WHERE
-    EXISTS (
-        SELECT
-            *
-        FROM
-            inventory AS i2
-        WHERE
-            i1.category = i2.category
-            AND i1.price < i2.price
+    i1.stock < (
+        SELECT SUM(o.quantity)
+        FROM inventory as i2
+        INNER JOIN orders as o
+        ON i2.product = o.product
+        WHERE i1.product = i2.product
     );
 
--- Q1. 別解 1
+-- Q2. 別解
+SELECT
+    i.*, SUM(o.quantity)
+FROM
+    inventory AS i
+    INNER JOIN
+        orders AS o
+        ON i.product = o.product
+GROUP BY
+    i.product
+HAVING
+    i.stock < SUM(o.quantity);
+
+-- Q3. 最後に注文された商品の在庫数を取得する
+SELECT
+    *
+FROM
+    inventory AS i
+WHERE
+    product = (
+        SELECT product
+        FROM orders
+        ORDER BY order_date DESC
+        LIMIT 1
+    );
+
+-- Q3. 別解
+SELECT
+    *
+FROM
+    inventory AS i
+    INNER JOIN (
+        SELECT product
+        FROM orders
+        ORDER BY order_date DESC
+        LIMIT 1
+    ) as tmp
+        ON i.product = tmp.product;
+
+-- Q4. 各カテゴリの中で、価格が最大である商品を取得する
+WITH category_highest AS (
+    SELECT
+        category,
+        MAX(price) AS price
+    FROM
+        inventory
+    GROUP BY
+        category
+)
+SELECT
+    *
+FROM
+    inventory
+WHERE
+    (category, price) IN (SELECT * from category_highest);
+
+-- Q5. 各カテゴリの中で、価格が最大ではない商品を取得する
 WITH category_highest AS (
     SELECT
         category,
@@ -30,74 +91,3 @@ FROM
     inventory
 WHERE
     (category, price) NOT IN (SELECT * from category_highest);
-
--- Q1. 別解 2
-SELECT
-    *
-FROM
-    inventory AS i1
-LEFT JOIN
-    inventory AS i2
-ON
-    i1.category = i2.category
-    AND i1.price < i2.price
-WHERE
-    i2.id IS NOT NULL;
-
--- Q2. 各カテゴリの中で、価格が最大でも最小でもない商品を取得する
-SELECT
-    *
-FROM
-    inventory AS i1
-WHERE
-    EXISTS (
-        SELECT
-            *
-        FROM
-            inventory AS i2
-        WHERE
-            i1.category = i2.category
-            AND i1.price < i2.price
-    )
-    AND
-    EXISTS (
-        SELECT
-            *
-        FROM
-            inventory AS i3
-        WHERE
-            i1.category = i3.category
-            AND i1.price > i3.price
-    );
-
--- Q3. 各カテゴリの中で、価格が最大である商品を取得する
-SELECT
-    *
-FROM
-    inventory AS i1
-WHERE
-    NOT EXISTS (
-        SELECT
-            *
-        FROM
-            inventory AS i2
-        WHERE
-            i1.category = i2.category
-            AND i1.price < i2.price
-    );
-
--- Q4. 購入されたことがある商品の中で、在庫数が 20 個未満の商品を取得する
-SELECT
-    *
-FROM
-    inventory AS i
-WHERE
-    EXISTS (
-        SELECT
-            *
-        FROM
-            order_history AS o
-        WHERE
-            i.product = o.product
-    )
-    AND i.stock < 20;

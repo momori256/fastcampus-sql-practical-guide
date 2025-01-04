@@ -1,123 +1,126 @@
--- Q1. (HML 分析) 価格が 5000 円未満、5000 円以上 20000 円未満、20000 円以上をそれぞれ Low・Middle・High として表示する
+-- Q1. 各カテゴリの中で、価格が最大である商品を取得する
 SELECT
-    *,
-    CASE
-        WHEN price < 5000 THEN 'Low'
-        WHEN price < 20000 THEN 'Middle'
-        ELSE 'High'
-    END AS HML
+    *
 FROM
-    inventory;
+    inventory AS i1
+WHERE
+    EXISTS (
+        SELECT
+            *
+        FROM
+            inventory AS i2
+        WHERE
+            i1.category = i2.category
+            AND i1.price < i2.price
+    );
 
--- Q2. HML それぞれに対して賞品の平均価格を計算する
-WITH inventory_hml AS (
-    SELECT
-        *,
-        CASE
-            WHEN price < 5000 THEN 'Low'
-            WHEN price < 20000 THEN 'Middle'
-            ELSE 'High'
-        END AS hml
-    FROM
-        inventory
-)
+-- Q2. 各カテゴリの中で、価格が最大ではない商品を取得する
 SELECT
-    hml,
-    AVG(price)
+    *
 FROM
-    inventory_hml
-GROUP BY
-    hml;
+    inventory AS i1
+WHERE
+    EXISTS (
+        SELECT
+            *
+        FROM
+            inventory AS i2
+        WHERE
+            i1.category = i2.category
+            AND i1.price < i2.price
+    )
+    AND
+    EXISTS (
+        SELECT
+            *
+        FROM
+            inventory AS i3
+        WHERE
+            i1.category = i3.category
+            AND i1.price > i3.price
+    );
 
--- Q2. 参考: CTE を使わない場合
+-- Q3. 購入されたことがある商品の中で、在庫数が 20 個未満の商品を取得する
 SELECT
-    CASE
-        WHEN price < 5000 THEN 'Low'
-        WHEN price < 20000 THEN 'Middle'
-        ELSE 'High'
-    END AS hml,
-    AVG(price)
+    *
+FROM
+    inventory AS i
+WHERE
+    EXISTS (
+        SELECT
+            *
+        FROM
+            orders AS o
+        WHERE
+            i.product = o.product
+    )
+    AND i.stock < 20;
+
+-- Q4. すべての商品が 20000 円以下であるカテゴリを取得する
+SELECT DISTINCT
+    category
+FROM
+    inventory AS i1
+WHERE
+    NOT EXISTS (
+        SELECT 1
+        FROM inventory AS i2
+        WHERE i2.category = i1.category
+        AND i2.price > 20000
+    );
+
+-- Q5. すべてのオフィス用品よりも高額な商品を取得する
+SELECT
+    *
 FROM
     inventory
-GROUP BY
-    CASE
-        WHEN price < 5000 THEN 'Low'
-        WHEN price < 20000 THEN 'Middle'
-        ELSE 'High'
-    END;
+WHERE
+    price > ALL (SELECT price FROM inventory WHERE category = 'オフィス用品');
 
--- Q3. Q2 の結果を上から順に L, M, H に並べ替える
-WITH inventory_hml AS (
-    SELECT
-        *,
-        CASE
-            WHEN price < 5000 THEN 'Low'
-            WHEN price < 20000 THEN 'Middle'
-            ELSE 'High'
-        END AS hml
-    FROM
-        inventory
-)
+-- Q5. 別解
 SELECT
-    hml,
-    AVG(price)
+    *
 FROM
-    inventory_hml
-GROUP BY
-    hml
-ORDER BY
-    CASE hml
-        WHEN 'Low' THEN 1
-        WHEN 'Middle' THEN 2
-        ELSE 3
-    END;
+    inventory as i1
+WHERE
+    NOT EXISTS (
+        SELECT 1
+        FROM inventory as i2
+        WHERE i2.category = 'オフィス用品'
+        AND i2.price >= i1.price
+    );
 
--- Q4. HML それぞれに対して一度の注文で購入される商品数の平均を計算する
-WITH inventory_hml AS (
-    SELECT
-        *,
-        CASE
-            WHEN price < 5000 THEN 'Low'
-            WHEN price < 20000 THEN 'Middle'
-            ELSE 'High'
-        END AS hml
-    FROM
-        inventory
-)
-SELECT
-    hml,
-    AVG(quantity)
-FROM
-    inventory_hml AS i
-INNER JOIN
-    order_history AS o
-ON
-    i.product = o.product
-GROUP BY
-    HML;
+-- Q6. 在庫数が同じ商品を取得するクエリを二通り書いて実行時間を比較する
+-- 相関サブクエリ
+SELECT *
+FROM inventory2 AS i1
+WHERE EXISTS (
+    SELECT 1
+    FROM inventory2 AS i2
+    WHERE i1.stock = i2.stock AND i1.product <> i2.product
+);
 
--- Q5. 休日 (12/1) と平日 (それ以外) に対して、一日の平均売上高を計算する
-WITH sales AS (
-    SELECT
-        order_date,
-        SUM(o.quantity * i.price) as avg_sale
-    FROM
-        order_history as o
-    INNER JOIN
-        inventory as i
-    GROUP BY
-        order_date
-)
-SELECT
-    CASE
-        WHEN order_date = '2024-12-01' THEN 'Holiday'
-        ELSE 'Weekday'
-    END as day_type,
-    AVG(avg_sale)
-FROM
-    sales
-GROUP BY
-    CASE
-        WHEN order_date = '2024-12-01' THEN 'Holiday'
-        ELSE 'Weekday'
-    END;
+-- テーブル結合
+SELECT DISTINCT *
+FROM inventory2 AS i1
+INNER JOIN inventory2 AS i2
+ON i1.stock = i2.stock AND i1.product <> i2.product;
+
+-- Q7. カテゴリの中で在庫数が最大の商品のリストを取得するクエリを二通り書いて実行時間を比較する
+-- 相関サブクエリ
+SELECT i1.product, i1.stock
+FROM inventory2 AS i1
+WHERE i1.stock = (
+    SELECT MAX(i2.stock)
+    FROM inventory2 AS i2
+    WHERE i2.category = i1.category
+);
+
+-- IN
+SELECT product, stock
+FROM inventory2
+WHERE (category, stock) IN (
+    SELECT category, MAX(stock)
+    FROM inventory2
+    GROUP BY category
+);

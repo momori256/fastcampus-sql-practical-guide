@@ -1,62 +1,63 @@
--- Q1. 各カテゴリごとに、最も高価な商品を取得する
+-- Q1. 各商品について、カテゴリの平均価格との差を計算する
 SELECT
-    i1.*
+    i.*,
+    AVG(price) OVER (PARTITION BY category) AS avg,
+    price - AVG(price) OVER (PARTITION BY category) AS diff
 FROM
-    inventory as i1
-LEFT JOIN
-    inventory as i2
-ON
-    i1.category = i2.category
-    AND i1.price < i2.price
-WHERE
-    i2.product IS NULL;
+    inventory as i
+ORDER BY
+    category, id;
 
--- Q1. 参考: WINDOW 関数を使って最大値を取得する
+-- Q1. 参考1: GROUP BY + JOIN
+SELECT
+    i.*,
+    tmp.avg_price,
+    i.price - tmp.avg_price AS diff
+FROM
+    inventory as i
+INNER JOIN
+(
+    SELECT
+        category, AVG(price) as avg_price
+    FROM
+        inventory
+    GROUP BY
+        category
+) as tmp
+ON
+    i.category = tmp.category;
+
+-- Q1. 参考2: スカラサブクエリ
 SELECT
     *,
-    MAX(price) OVER (PARTITION BY category) AS max_price
+    price - (
+        SELECT
+            AVG(price)
+        FROM
+            inventory as i2
+        WHERE
+            i1.category = i2.category
+    ) AS diff
+FROM
+    inventory as i1;
+
+-- Q2. 各カテゴリの中で、商品の価格の順位を取得する
+SELECT
+    *,
+    RANK() OVER (PARTITION BY category ORDER BY price) AS rank
 FROM
     inventory;
 
--- Q2. 各顧客ごとに、もっとも注文回数の多いカテゴリを取得する
-WITH order_count AS (
-    SELECT
-        c.name,
-        i.category,
-        COUNT(*) as count
-    FROM
-        order_history as o
-    INNER JOIN
-        inventory as i
-    ON
-        o.product = i.product
-    INNER JOIN
-        customers as c
-    ON
-        o.customer_id = c.customer_id
-    GROUP BY
-        o.customer_id, i.category
-)
+-- Q3. 同じカテゴリの商品を価格順に並べたとき、自身より一つ安い商品との価格差を計算する
 SELECT
-    o1.*
+    *,
+    price - LAG(price, 1) OVER (PARTITION BY category ORDER BY price) AS diff
 FROM
-    order_count as o1
-LEFT JOIN
-    order_count as o2
-ON
-    o1.name = o2.name
-    AND o1.count < o2.count
-WHERE
-    o2.count IS NULL;
+    inventory;
 
--- Q3. 同じ顧客が複数回同じ商品を注文しているかどうかを取得する
+-- Q4. 各カテゴリの中の累積在庫を計算する
 SELECT
-    o1.customer_id, o1.product, o1.order_date, o2.order_date
+    *,
+    SUM(stock) OVER (PARTITION BY category ORDER BY id) AS cumulative_stock
 FROM
-    order_history as o1
-INNER JOIN
-    order_history as o2
-ON
-    o1.order_id < o2.order_id
-    AND o1.product = o2.product
-    AND o1.customer_id = o2.customer_id;
+    inventory;

@@ -1,6 +1,6 @@
--- Q1. 各商品が HML のどのグループに属するかを表示する
--- Q2. 一度も注文されていない商品を表示する
--- Q3. 注文されたことがある商品を表示する
+-- Q1. 各カテゴリごとに、最も高価な商品を取得する
+-- Q2. 各顧客ごとに、もっとも注文回数の多いカテゴリを取得する
+-- Q3. 同じ顧客が複数回同じ商品を注文しているかどうかを取得する
 
 -- 商品在庫テーブル
 CREATE TABLE inventory (
@@ -22,6 +22,19 @@ VALUES
     ('スマートフォン', 100, 35000, '電子機器'),
     ('ヘッドフォン', 20, 5000, '電子機器'),
     ('デスク', 25, 20000, '家具');
+
+-- 顧客テーブル
+CREATE TABLE customers (
+    customer_id INTEGER PRIMARY KEY, -- 顧客 ID
+    name TEXT NOT NULL -- 顧客名
+);
+
+INSERT INTO customers (customer_id, name)
+VALUES
+    (1, '佐藤 太郎'),
+    (2, '鈴木 花子'),
+    (3, '高橋 次郎'),
+    (4, '田中 美佐子');
 
 -- 注文履歴テーブル
 CREATE TABLE order_history (

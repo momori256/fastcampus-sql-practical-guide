@@ -1,43 +1,62 @@
--- Q1. (CASE を使わず) 各商品が HML のどのグループに属するかを表示する
+-- Q1. 各カテゴリごとに、最も高価な商品を取得する
 SELECT
-    *, 'Low' as hml
+    i1.*
 FROM
-    inventory
+    inventory as i1
+LEFT JOIN
+    inventory as i2
+ON
+    i1.category = i2.category
+    AND i1.price < i2.price
 WHERE
-    price < 5000
-UNION ALL
-SELECT
-    *, 'Middle' as hml
-FROM
-    inventory
-WHERE
-    5000 <= price AND price < 20000
-UNION ALL
-SELECT
-    *, 'High' as hml
-FROM
-    inventory
-WHERE
-    20000 <= price;
+    i2.product IS NULL;
 
--- Q2. 一度も注文されていない商品を表示する
+-- Q1. 参考: WINDOW 関数を使って最大値を取得する
 SELECT
-    product
+    *,
+    MAX(price) OVER (PARTITION BY category) AS max_price
 FROM
-    inventory
-EXCEPT
-SELECT
-    product
-FROM
-    order_history;
+    inventory;
 
--- Q3. 注文されたことがある商品を表示する
+-- Q2. 各顧客ごとに、もっとも注文回数の多いカテゴリを取得する
+WITH order_count AS (
+    SELECT
+        c.name,
+        i.category,
+        COUNT(*) as count
+    FROM
+        order_history as o
+    INNER JOIN
+        inventory as i
+    ON
+        o.product = i.product
+    INNER JOIN
+        customers as c
+    ON
+        o.customer_id = c.customer_id
+    GROUP BY
+        o.customer_id, i.category
+)
 SELECT
-    product
+    o1.*
 FROM
-    inventory
-INTERSECT
+    order_count as o1
+LEFT JOIN
+    order_count as o2
+ON
+    o1.name = o2.name
+    AND o1.count < o2.count
+WHERE
+    o2.count IS NULL;
+
+-- Q3. 同じ顧客が複数回同じ商品を注文しているかどうかを取得する
 SELECT
-    product
+    o1.customer_id, o1.product, o1.order_date, o2.order_date
 FROM
-    order_history;
+    order_history as o1
+INNER JOIN
+    order_history as o2
+ON
+    o1.order_id < o2.order_id
+    AND o1.product = o2.product
+    AND o1.customer_id = o2.customer_id;

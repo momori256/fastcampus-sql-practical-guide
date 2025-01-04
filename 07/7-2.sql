@@ -1,33 +1,33 @@
--- Q1. 各カテゴリの中で、自分より価格が高い商品が存在する商品を取得する
--- Q2. 各カテゴリの中で、価格が最大でも最小でもない商品を取得する
--- Q3. 各カテゴリの中で、価格が最大である商品を取得する
--- Q4. 購入されたことがある商品の中で、在庫数が 20 個未満の商品を取得する
+-- Q1. カテゴリごとの平均価格よりも高価な商品を取得する
+-- Q2. 在庫数が注文数よりも少ない商品を取得する
+-- Q3. 最後に注文された商品の在庫数を取得する
+-- Q4. 各カテゴリの中で、価格が最大である商品を取得する
+-- Q5. 各カテゴリの中で、価格が最大ではない商品を取得する
 
 -- 商品在庫テーブルの作成
 CREATE TABLE inventory (
-    id INTEGER PRIMARY KEY, -- 商品 ID
-    product TEXT NOT NULL, -- 商品名
+    product TEXT PRIMARY KEY, -- 商品名
     stock INTEGER NOT NULL, -- 在庫数
     price INTEGER NOT NULL, -- 価格
     category TEXT NOT NULL -- カテゴリ
 );
 
 -- データ挿入
-INSERT INTO inventory (id, product, stock, price, category)
+INSERT INTO inventory (product, stock, price, category)
 VALUES
-    (1, 'ノート', 50, 350, '文房具'),
-    (2, 'ペン', 200, 120, '文房具'),
-    (3, '消しゴム', 10, 80, '文房具'),
-    (4, 'マーカー', 5, 150, '文房具'),
-    (5, 'ホッチキス', 15, 400, 'オフィス用品'),
-    (6, 'プリンター', 10, 12000, 'オフィス用品'),
-    (7, 'ノートパソコン', 30, 80000, '電子機器'),
-    (8, 'スマートフォン', 100, 35000, '電子機器'),
-    (9, 'ヘッドフォン', 20, 5000, '電子機器'),
-    (10, 'デスク', 25, 80000, '家具');
+    ('ノート', 5, 350, '文房具'),
+    ('ペン', 20, 120, '文房具'),
+    ('消しゴム', 10, 80, '文房具'),
+    ('マーカー', 5, 150, '文房具'),
+    ('ホッチキス', 3, 400, 'オフィス用品'),
+    ('プリンター', 5, 12000, 'オフィス用品'),
+    ('ノートパソコン', 3, 80000, '電子機器'),
+    ('スマートフォン', 5, 35000, '電子機器'),
+    ('ヘッドフォン', 20, 5000, '電子機器'),
+    ('デスク', 5, 80000, '家具');
 
 -- 注文履歴テーブルの作成
-CREATE TABLE order_history (
+CREATE TABLE orders (
     order_id INTEGER PRIMARY KEY, -- 注文 ID
     product TEXT NOT NULL, -- 商品名
     quantity INTEGER NOT NULL, -- 注文数
@@ -35,7 +35,7 @@ CREATE TABLE order_history (
 );
 
 -- 注文履歴データ挿入
-INSERT INTO order_history (order_id, product, quantity, order_date)
+INSERT INTO orders (order_id, product, quantity, order_date)
 VALUES
     -- 文房具
     (1, 'ノート', 2, '2024-12-01'), -- ノートを 2 冊購入
