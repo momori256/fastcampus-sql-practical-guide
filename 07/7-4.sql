@@ -1,5 +1,5 @@
 -- Q1. (HML 分析) 価格が 5000 円未満、5000 円以上 20000 円未満、20000 円以上をそれぞれ Low・Middle・High として表示する
--- Q2. HML それぞれに対して賞品の平均価格を計算する
+-- Q2. HML それぞれに対して商品の平均価格を計算する
 -- Q3. Q2 の結果を上から順に L, M, H に並べ替える
 -- Q4. HML それぞれに対して一度の注文で購入される商品数の平均を計算する
 -- Q5. 休日 (12/1) と平日 (それ以外) に対して、一日の平均売上高を計算する
@@ -28,7 +28,7 @@ VALUES
     (10, 'デスク', 25, 80000, '家具');
 
 -- 注文履歴テーブルの作成
-CREATE TABLE order_history (
+CREATE TABLE orders (
     order_id INTEGER PRIMARY KEY, -- 注文 ID
     product TEXT NOT NULL, -- 商品名
     quantity INTEGER NOT NULL, -- 注文数
@@ -36,7 +36,7 @@ CREATE TABLE order_history (
 );
 
 -- 注文履歴データ挿入
-INSERT INTO order_history (order_id, product, quantity, order_date)
+INSERT INTO orders (order_id, product, quantity, order_date)
 VALUES
     -- 文房具
     (1, 'ノート', 2, '2024-12-01'), -- ノートを 2 冊購入

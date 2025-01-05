@@ -18,7 +18,20 @@ SELECT
 FROM
     inventory;
 
--- Q2. 各顧客ごとに、もっとも注文回数の多いカテゴリを取得する
+-- Q2. 各カテゴリごとに、自分よりも高価な商品の個数を取得する
+SELECT
+    i1.product, COUNT(i2.product)
+FROM
+    inventory as i1
+LEFT JOIN
+    inventory as i2
+ON
+    i1.category = i2.category
+    AND i1.price < i2.price
+GROUP BY
+    i1.product;
+
+-- Q3. 各顧客ごとに、もっとも注文回数の多いカテゴリを取得する
 WITH order_count AS (
     SELECT
         c.name,
@@ -49,7 +62,7 @@ ON
 WHERE
     o2.count IS NULL;
 
--- Q3. 同じ顧客が複数回同じ商品を注文しているかどうかを取得する
+-- Q4. 同じ顧客が複数回同じ商品を注文しているかどうかを取得する
 SELECT
     o1.customer_id, o1.product, o1.order_date, o2.order_date
 FROM

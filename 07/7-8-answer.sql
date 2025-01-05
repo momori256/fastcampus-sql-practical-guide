@@ -39,7 +39,7 @@ WHERE
 GROUP BY
     customer_id;
 
--- Q3. 地域別 (アジア、北アメリカ、ヨーロッパ) に最も注文数の多い映画を取得する
+-- Q3. 地域別 (アジア、北アメリカ、ヨーロッパ) に最も注文数の多い映画を取得する (アジア: ('Indonesia', 'China', 'Japan', 'Malaysia', 'Philippines'), 北アメリカ: ('United States', 'Canada'))
 WITH region_orders AS (
 SELECT
     CASE

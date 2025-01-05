@@ -9,7 +9,7 @@ SELECT
 FROM
     inventory;
 
--- Q2. HML それぞれに対して賞品の平均価格を計算する
+-- Q2. HML それぞれに対して商品の平均価格を計算する
 WITH inventory_hml AS (
     SELECT
         *,
@@ -90,7 +90,7 @@ SELECT
 FROM
     inventory_hml AS i
 INNER JOIN
-    order_history AS o
+    orders AS o
 ON
     i.product = o.product
 GROUP BY
@@ -102,7 +102,7 @@ WITH sales AS (
         order_date,
         SUM(o.quantity * i.price) as avg_sale
     FROM
-        order_history as o
+        orders as o
     INNER JOIN
         inventory as i
     GROUP BY

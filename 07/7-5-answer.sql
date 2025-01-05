@@ -55,9 +55,30 @@ SELECT
 FROM
     inventory;
 
--- Q4. 各カテゴリの中の累積在庫を計算する
+-- Q4. 各カテゴリの商品を id で並び替え、累積在庫を計算する
 SELECT
     *,
     SUM(stock) OVER (PARTITION BY category ORDER BY id) AS cumulative_stock
+FROM
+    inventory;
+
+-- Q5. 各日付ごとの合計購入数の、前後一日を加えた移動平均を計算する
+SELECT
+    *,
+    AVG(total_qty) OVER (ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING)
+FROM
+(
+    SELECT order_date, SUM(quantity) as total_qty
+    FROM orders
+    GROUP BY order_date
+) as tmp;
+
+-- Q6. 価格が ±10000 の範囲にある商品の平均在庫数との差を計算する
+SELECT
+    *,
+    stock - AVG(stock) OVER (
+        ORDER BY price
+        RANGE BETWEEN 10000 PRECEDING AND 10000 FOLLOWING
+    ) AS diff
 FROM
     inventory;

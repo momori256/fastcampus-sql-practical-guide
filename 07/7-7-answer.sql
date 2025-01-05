@@ -29,15 +29,23 @@ EXCEPT
 SELECT
     product
 FROM
-    order_history;
+    orders;
 
--- Q3. 注文されたことがある商品を表示する
+-- Q3. 3 回以上注文されたことがあり、かつ在庫数が 10 以下の商品を表示する
 SELECT
     product
 FROM
     inventory
+WHERE
+    stock <= 10
 INTERSECT
 SELECT
     product
 FROM
-    order_history;
+    orders AS o1
+WHERE
+    3 <= (
+        SELECT COUNT(*)
+        FROM orders AS o2
+        WHERE o1.product = o2.product
+    );
