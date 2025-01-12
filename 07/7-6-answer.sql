@@ -1,75 +1,123 @@
--- Q1. 各カテゴリごとに、最も高価な商品を取得する
-SELECT
-    i1.*
-FROM
-    inventory as i1
-LEFT JOIN
-    inventory as i2
-ON
-    i1.category = i2.category
-    AND i1.price < i2.price
-WHERE
-    i2.product IS NULL;
-
--- Q1. 参考: WINDOW 関数を使って最大値を取得する
+-- Q1. (HML 分析) 価格が 5000 円未満、5000 円以上 20000 円未満、20000 円以上をそれぞれ Low・Middle・High として表示する
 SELECT
     *,
-    MAX(price) OVER (PARTITION BY category) AS max_price
+    CASE
+        WHEN price < 5000 THEN 'Low'
+        WHEN price < 20000 THEN 'Middle'
+        ELSE 'High'
+    END AS HML
 FROM
     inventory;
 
--- Q2. 各カテゴリごとに、自分よりも高価な商品の個数を取得する
-SELECT
-    i1.product, COUNT(i2.product)
-FROM
-    inventory as i1
-LEFT JOIN
-    inventory as i2
-ON
-    i1.category = i2.category
-    AND i1.price < i2.price
-GROUP BY
-    i1.product;
-
--- Q3. 各顧客ごとに、もっとも注文回数の多いカテゴリを取得する
-WITH order_count AS (
+-- Q2. HML それぞれに対して商品の平均価格を計算する
+WITH inventory_hml AS (
     SELECT
-        c.name,
-        i.category,
-        COUNT(*) as count
+        *,
+        CASE
+            WHEN price < 5000 THEN 'Low'
+            WHEN price < 20000 THEN 'Middle'
+            ELSE 'High'
+        END AS hml
     FROM
-        order_history as o
-    INNER JOIN
-        inventory as i
-    ON
-        o.product = i.product
-    INNER JOIN
-        customers as c
-    ON
-        o.customer_id = c.customer_id
-    GROUP BY
-        o.customer_id, i.category
+        inventory
 )
 SELECT
-    o1.*
+    hml,
+    AVG(price)
 FROM
-    order_count as o1
-LEFT JOIN
-    order_count as o2
-ON
-    o1.name = o2.name
-    AND o1.count < o2.count
-WHERE
-    o2.count IS NULL;
+    inventory_hml
+GROUP BY
+    hml;
 
--- Q4. 同じ顧客が複数回同じ商品を注文しているかどうかを取得する
+-- Q2. 参考: CTE を使わない場合
 SELECT
-    o1.customer_id, o1.product, o1.order_date, o2.order_date
+    CASE
+        WHEN price < 5000 THEN 'Low'
+        WHEN price < 20000 THEN 'Middle'
+        ELSE 'High'
+    END AS hml,
+    AVG(price)
 FROM
-    order_history as o1
+    inventory
+GROUP BY
+    CASE
+        WHEN price < 5000 THEN 'Low'
+        WHEN price < 20000 THEN 'Middle'
+        ELSE 'High'
+    END;
+
+-- Q3. Q2 の結果を上から順に L, M, H に並べ替える
+WITH inventory_hml AS (
+    SELECT
+        *,
+        CASE
+            WHEN price < 5000 THEN 'Low'
+            WHEN price < 20000 THEN 'Middle'
+            ELSE 'High'
+        END AS hml
+    FROM
+        inventory
+)
+SELECT
+    hml,
+    AVG(price)
+FROM
+    inventory_hml
+GROUP BY
+    hml
+ORDER BY
+    CASE hml
+        WHEN 'Low' THEN 1
+        WHEN 'Middle' THEN 2
+        ELSE 3
+    END;
+
+-- Q4. HML それぞれに対して一度の注文で購入される商品数の平均を計算する
+WITH inventory_hml AS (
+    SELECT
+        *,
+        CASE
+            WHEN price < 5000 THEN 'Low'
+            WHEN price < 20000 THEN 'Middle'
+            ELSE 'High'
+        END AS hml
+    FROM
+        inventory
+)
+SELECT
+    hml,
+    AVG(quantity)
+FROM
+    inventory_hml AS i
 INNER JOIN
-    order_history as o2
+    orders AS o
 ON
-    o1.order_id < o2.order_id
-    AND o1.product = o2.product
-    AND o1.customer_id = o2.customer_id;
+    i.product = o.product
+GROUP BY
+    HML;
+
+-- Q5. 休日 (12/1) と平日 (それ以外) に対して、一日の平均売上高を計算する
+WITH sales AS (
+    SELECT
+        order_date,
+        SUM(o.quantity * i.price) as avg_sale
+    FROM
+        orders as o
+    INNER JOIN
+        inventory as i
+    GROUP BY
+        order_date
+)
+SELECT
+    CASE
+        WHEN order_date = '2024-12-01' THEN 'Holiday'
+        ELSE 'Weekday'
+    END as day_type,
+    AVG(avg_sale)
+FROM
+    sales
+GROUP BY
+    CASE
+        WHEN order_date = '2024-12-01' THEN 'Holiday'
+        ELSE 'Weekday'
+    END;
