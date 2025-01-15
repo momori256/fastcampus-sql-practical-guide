@@ -10,7 +10,7 @@
 ## ファイルについて
 
 x-y.sql は x 章の y 番目の動画に関するファイルです。通常は問題文とセットアップ用の SQL を含んでいます。  
-x-y-answer.sql は問題への回答例を示したファイルです。講座で解説するクエリと、必ずしも同じではありません。
+x-y-answer.sql は問題への回答例を示したファイルです。講座で解説するクエリと必ずしも同じではありません。
 
 ---
 
@@ -18,7 +18,7 @@ The following is the English translation of the Japanese content above.
 
 ## About This Repository
 
-This repository provides materials for the following course:
+This repository provides materials for the following course:  
 [データドリブン意思決定のための実践SQL: 3つのケーススタディで基礎から学ぶ15時間の集中講座](https://fastcampus.jp/products/dev_online_sqldata)
 
 ## Repository Structure
