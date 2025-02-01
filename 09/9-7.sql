@@ -92,15 +92,15 @@ SELECT
         WHEN recency <= 40 THEN 4
         WHEN recency <= 60 THEN 3
         WHEN recency <= 80 THEN 2
-	    ELSE 1
+        ELSE 1
     END as r_score,
-    NTILE(5) OVER (ORDER BY frequency DESC) AS f_score,
-    NTILE(5) OVER (ORDER BY monetary DESC) AS m_score
+    NTILE(5) OVER (ORDER BY frequency) AS f_score,
+    NTILE(5) OVER (ORDER BY monetary) AS m_score
 FROM rfm
 ORDER BY
     year_month, CustomerID;
 
--- Q2. おまけ: 月ごとにリセットして RFM 値を計算
+-- Q3. おまけ: 月ごとにリセットして RFM 値を計算
 WITH rfm AS (
     WITH customer_ids AS (
         SELECT DISTINCT CustomerID
@@ -132,7 +132,7 @@ SELECT
     NTILE(5) OVER (ORDER BY monetary) AS m_score
 FROM rfm;
 
--- Q2. おまけ: R はこれまでの累計で計算
+-- Q3. おまけ: R はこれまでの累計で計算
 WITH last_purchase AS ( -- 1. その月末日時点の「最終購入日」を求める
     SELECT
         m.year_month,
